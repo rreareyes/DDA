@@ -1,0 +1,5 @@
+#EVT1.1 startTime stopTime Event_Name
+5.583 5.583 20.1 20.1 ReferencePointEvent1
+26.983 26.983 41.4833 41.4833 ReferencePointEvent1
+63.467 63.467 78 78 STOP_EVENT
+0 0 14.533 14.533 RECORD_EVENT

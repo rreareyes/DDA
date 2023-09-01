@@ -1,0 +1,12 @@
+11:00:36: Log Started for: 'F:\data\Experimenter_AR_Test2_08_28_EEG_Test_1693234374.log'
+11:00:36: Network captures started
+11:00:36: Started Recording
+11:00:37: Network captures started
+11:01:00: Warning: 1 video frames dropped at 00:00:22.98
+11:01:09: Stopped Recording
+11:01:09: Disconnect Primary
+11:01:09: Stopping network captures
+11:01:09: Moved E:\sobTemp_2023-8-28-11-0-37.cap to F:\data\Experimenter_AR_Test2_08_28_EEG_Test_1693234374.cap
+11:01:09: Moved E:\sobTemp_2023-8-28-11-0-36.mp4 to F:\data\Experimenter_AR_Test2_08_28_EEG_Test_1693234374.mp4
+11:01:09: Moved E:\sobTemp_2023-8-28-11-0-36.dat to F:\data\Experimenter_AR_Test2_08_28_EEG_Test_1693234374.dat
+11:01:09: Capture has been moved successfully, all further output redirected to c:/rti/logfile.log
