@@ -8,21 +8,26 @@
 # The trigger time is returned as a float.
 
 # Import libraries
+import tkinter as tk
+from tkinter import filedialog
 import sys
 import numpy as np
-import easygui
 import librosa
 import librosa.display
 import moviepy.editor as mp
+from PyQt5 import QtWidgets, QtCore
 from scipy.signal import find_peaks
 from PyQt5.QtWidgets import QApplication, QMainWindow, QVBoxLayout, QPushButton, QWidget, QLabel, QListWidget
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from matplotlib.figure import Figure
 from scipy.signal import find_peaks
 
-class SpectrogramWindow(QMainWindow):
+class spectrogram_window(QMainWindow):
     def __init__(self, y, sr, segment_length = 15, hz_target = 9000):
         super().__init__()
+        # Setting the window to stay on top
+        self.setWindowFlags(self.windowFlags() | QtCore.Qt.WindowStaysOnTopHint)
+
 
         # Set up the variables
         self.y               = y
@@ -58,6 +63,8 @@ class SpectrogramWindow(QMainWindow):
 
         # Initial plot
         self.update_plot()
+
+        self.resize(960, 510)
 
     def select_peak(self):
         selected_time = self.peak_list.currentItem().text()
@@ -112,19 +119,28 @@ class SpectrogramWindow(QMainWindow):
         self.canvas.draw()
 
 # Extract audio samples directly to a numpy array and get the sampling rate
-def detect_audio_triggers(video_path=None, segment_length=15, hz_target=9000):
+def detect_audio_triggers(video_path = None, segment_length = 15, hz_target = 9000):
     if video_path is None:
-        video_path = easygui.fileopenbox(default='*.mp4', filetypes=["*.mp4"], title="Select an MP4 video file")
+        root = tk.Tk()
+        root.withdraw()  # Hide the root window
+        root.attributes('-topmost', True)
+        
+        video_path = filedialog.askopenfilename(defaultextension=".mp4", filetypes=[("MP4 Files", "*.mp4")], title="Select an MP4 video file")
+
+        root.destroy()  # Close the tkinter instance
+        
         if not video_path:  # If the user cancels the file dialog
             return
 
     audio = mp.AudioFileClip(video_path)
-    y = audio.to_soundarray(fps=22050, nbytes=2).mean(axis=1)  # Average over the two channels to get mono
-    sr = 22050  # Setting the sampling rate to 22050 to match the fps value for the audio
+    y     = audio.to_soundarray(fps=22050, nbytes=2).mean(axis=1)  # Average over the two channels to get mono
+    sr    = 22050  # Setting the sampling rate to 22050 to match the fps value for the audio
     
     try:
-        app = QApplication(sys.argv)
-        main = SpectrogramWindow(y, sr, segment_length=segment_length, hz_target=hz_target)
+        QtWidgets.QApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling, True)
+
+        app  = QApplication(sys.argv)
+        main = spectrogram_window(y, sr, segment_length=segment_length, hz_target=hz_target)
         main.show()
         app.exec_()
         
@@ -134,5 +150,3 @@ def detect_audio_triggers(video_path=None, segment_length=15, hz_target=9000):
 
     except SystemExit:
         pass
-
-detect_audio_triggers(segment_length=5, hz_target=9000)

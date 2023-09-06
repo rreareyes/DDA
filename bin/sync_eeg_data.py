@@ -10,19 +10,35 @@
 # Import libraries
 import os
 import numpy as np
-import easygui
 import pyxdf
 import pandas as pd
+import tkinter as tk
+from tkinter import filedialog
 
 def sync_eeg_data(trigger_time, eeg_file = None):
+
+    root = tk.Tk()
+    root.withdraw()  # Hide the main window
+    root.lift()      # Bring the main window to the foreground
+    root.attributes('-topmost', True)  # Make sure the window remains on top
+
     # If eeg_file is not provided or empty, prompt user to select one using GUI
+
     if not eeg_file:
-        # Select the EEG folder
-        dir_eeg   = easygui.diropenbox(title = "Select EEG folder")
+        # Prompt user to select EEG folder using tkinter
+        dir_eeg = filedialog.askdirectory(title="Select EEG folder")
+        if not dir_eeg:
+            root.destroy()
+            return None
         eeg_files = [file for file in os.listdir(dir_eeg) if file.endswith(".xdf")]
-        
-        # Display a choicebox to select the xdf file
-        eeg_file = os.path.join(dir_eeg, easygui.choicebox("Select the EEG file to synchronize", "EEG Data", eeg_files))
+
+        # Prompt user to select the xdf file using tkinter
+        eeg_file = filedialog.askopenfilename(title="Select the EEG file to synchronize", initialdir=dir_eeg, filetypes=[("XDF files", "*.xdf")])
+        if not eeg_file:
+            root.destroy()
+            return None
+
+    root.destroy()  # Close the root window once we're done
 
     # Read EEG data
     streams, header = pyxdf.load_xdf(eeg_file)
