@@ -44,7 +44,7 @@ def sync_eeg_data(trigger_time, eeg_file = None):
     streams, header = pyxdf.load_xdf(eeg_file)
 
     # Separate video and EEG data streams
-    video_raw_data = streams[0]
+    video_raw_data = next((stream for stream in streams if stream['info']['type'] == ['video']), None)
 
     video_time_stamps = video_raw_data["time_stamps"]
     true_video_start  = float(video_raw_data["footer"]["info"]["first_timestamp"][0])
@@ -54,7 +54,7 @@ def sync_eeg_data(trigger_time, eeg_file = None):
     video_trigger_time_stamp = video_time_stamps[vide_trigger_index]
 
     # Get EEG data stream
-    eeg_raw_data = streams[2]
+    eeg_raw_data = next((stream for stream in streams if stream['info']['type'] == ['EEG']), None)
 
     # Extract EEG data
     eeg_signal     = eeg_raw_data["time_series"]
