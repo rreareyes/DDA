@@ -9,6 +9,9 @@
 
 # Import libraries
 import os
+import re
+import io
+import easygui
 import numpy as np
 import pandas as pd
 import tkinter as tk
@@ -49,8 +52,43 @@ def sync_simulator_data(trigger_time, sim_file = None):
         easygui.msgbox("Event file not found. Please check the file name and try again.", "Error")
         exit()
 
+    # Wrap any phrases (letters/numbers separated by spaces) in quotes if not already numeric
+    def preprocess_line(line):
+        line = line.replace('Instrument Cluster', 'Instrument_Cluster')
+        line = line.replace('left MIrror', 'left_MIrror')
+        line = line.replace('Rear View Mirror', 'Rear_View_Mirror')
+            
+        # Handle non-printable characters and special cases like `1.#IO`
+        line = re.sub(r'[^\x00-\x7F]+', 'non_ascii', line)  # Remove non-ASCII characters
+
+        # Handle the special floating point value '1.#IO'
+        line = re.sub(r'1\.\#IO', 'IO_error', line)  # Replace `1.#IO` with 'NaN'
+        
+        return line
+    
+    # Read and preprocess the file in memory
+    with open(sim_file, "r") as file:
+        lines = file.readlines()
+
+    # Preprocess the data lines
+    processed_data_lines = [preprocess_line(line) for line in lines]
+
+    # OPTIONAL: Write the processed lines to a new file
+    temp_file_path = os.path.join(os.path.dirname(sim_file), "processed_file.dat")
+
+    with open(temp_file_path, "w") as temp_file:
+        temp_file.writelines(processed_data_lines)
+
+    # # Create a file object to read into pandas
+    # # Combine the processed lines into a single string 
+    # processed_content = "\n".join(processed_data_lines)
+
+    # # Use StringIO to create a file-like object from the string 
+    # file_like_object = io.StringIO(processed_content)
+
     # Read simulator data
-    sim_data   = pd.read_csv(sim_file, sep = " ")
+    sim_data   = pd.read_csv(temp_file_path, sep = " ") # Only if you decided to write the processed file
+    # sim_data   = pd.read_csv(file_like_object, sep = " ")
     event_data = pd.read_csv(sim_events_file, sep = "\s+|#", engine = "python")
 
     # Get trigger time from event data
